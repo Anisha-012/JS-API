@@ -1,38 +1,40 @@
-let url="https://api.genderize.io?name=";
-let wrapper = document.getElementById("wrapper");
-let predictGender = () =>{
-    let name=document.getElementById("name").value;
-    let error=document.getElementById("error");
-    let finalURL= url+name;
-     console.log(name);
-     console.log(finalURL);
-    wrapper.innerHTML = "";
+const url="https://api.dictionaryapi.dev/api/v2/entries/en/";
+const result= document.getElementById("result");
+const btn=document.getElementById("search-btn");
+const sound=document.getElementById("sound");
+btn.addEventListener("click",() =>{
+    let inpWord= document.getElementById("inp-word").value;
+    fetch(`${url}${inpWord}`)
+    .then((response) => response.json())
+    .then((data) => 
+    {  
+        result.innerHTML=
+       ` <div class ="word">
+        <h3>${inpWord}</h3>
+        <button onclick="playSound()">
+        <i class ="fas fa-volume-up"></i></button>
+        </div>
+        <div class ="details">
+            <p>${data[0].meanings[0].partOfSpeech}</p>
+            <p>/${data[0].phonetic}</p>
+        </div>
+        <p class ="word-meaning">
+            ${data[0].meanings[0].definitions[0].definition}
+        </p>
+        <p class="word-example">${data[0].meanings[0].definitions[0].example}</p>`;
+           sound.setAttribute("src",`${data[0]?.phonetics[0].audio}`);
+    })
+           .catch(() => {
+                result.innerHTML = `<h3 class = "error">Couldn't find the word</h3>`
+           });
+});
 
-    if(name.length > 0 || /^[A-Za-z]+$/.test(name)){
-        fetch(finalURL)
-        .then((resp) => resp.json())
-        .then((data) => {
-            console.log(data);
-            let div= document.createElement("div");
-            div.setAttribute("id","info");
-            div.innerHTML = `<h2 id="result-name">${data.name}</h2>
-            <img src="" id="gender-icon"/> <h1 id="gender">
-            ${data.gender}</h1> <h4 id="prob"> Probability:
-            ${data.probability}</h4>`;
-            wrapper.append(div);
-            if(data.gender == 'female'){
-                div.classList.add("female");
-                document.getElementById("gender-icon").setAttribute("src","female.png");}
-                else{
-                    div.classList.add("male");
-                document.getElementById("gender-icon").setAttribute("src","male.png");}
-                
-    
-        });
-    }
-    else{
-       error.innerHTML = "Enter a valid name"; 
-    }
-};
-document.getElementById("submit").addEventListener("click",predictGender);
-window.addEventListener("load",predictGender);
+async function playSound()
+{
+
+    sound.play()
+    .catch(err => {
+        console.log(err)
+    })
+    // console.log(data)
+}
